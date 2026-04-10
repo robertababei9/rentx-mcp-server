@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: rentx-mcp-server
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: RENTX_API_URL
+        value: https://api.rentx.ro/api
+    autoDeploy: true

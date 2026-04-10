@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import http from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
@@ -674,6 +676,77 @@ export function createSandboxServer() {
 }
 
 // ---------------------------------------------------------------------------
+// HTTP entrypoint (when PORT env var is set — for public hosting)
+// ---------------------------------------------------------------------------
+
+async function startHttpServer() {
+  const port = parseInt(process.env.PORT || "3000", 10);
+
+  const httpServer = http.createServer(async (req, res) => {
+    // CORS — allow any AI assistant or browser to call this endpoint
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Accept, Mcp-Session-Id"
+    );
+
+    if (req.method === "OPTIONS") {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    // Health check
+    if (req.url === "/health" || req.url === "/") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({ status: "ok", server: "rentx-mcp-server", version: "1.0.2" })
+      );
+      return;
+    }
+
+    // MCP endpoint
+    if (req.url === "/mcp") {
+      let parsedBody: unknown;
+
+      if (req.method === "POST") {
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) {
+          chunks.push(chunk as Buffer);
+        }
+        const raw = Buffer.concat(chunks).toString("utf-8");
+        if (raw) {
+          try {
+            parsedBody = JSON.parse(raw);
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Invalid JSON body" }));
+            return;
+          }
+        }
+      }
+
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined, // stateless — no session affinity needed
+      });
+      const server = createServer();
+      await server.connect(transport);
+      await transport.handleRequest(req, res, parsedBody);
+      return;
+    }
+
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not found" }));
+  });
+
+  httpServer.listen(port, () => {
+    console.log(`RentX MCP HTTP server listening on port ${port}`);
+    console.log(`MCP endpoint: POST http://0.0.0.0:${port}/mcp`);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Stdio entrypoint (npx / local use)
 // ---------------------------------------------------------------------------
 
@@ -684,7 +757,18 @@ async function main() {
   console.error("RentX MCP server started (stdio transport)");
 }
 
-main().catch((err) => {
-  console.error("Fatal error starting RentX MCP server:", err);
-  process.exit(1);
-});
+// ---------------------------------------------------------------------------
+// Entry point — HTTP when PORT is set, stdio otherwise
+// ---------------------------------------------------------------------------
+
+if (process.env.PORT) {
+  startHttpServer().catch((err) => {
+    console.error("Fatal error starting HTTP server:", err);
+    process.exit(1);
+  });
+} else {
+  main().catch((err) => {
+    console.error("Fatal error starting RentX MCP server:", err);
+    process.exit(1);
+  });
+}
