@@ -1,6 +1,6 @@
 {
   "name": "rentx-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for RentX.ro — Romania's rental marketplace. Search cars, equipment, electronics and more.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "esbuild": "^0.28.0",
     "typescript": "^5.5.0"
   }
 }
