@@ -48,34 +48,33 @@ No inputs. Returns the full category hierarchy.
 
 ## Installation
 
+No installation needed — run directly with npx:
+
 ```bash
-git clone <this-repo>
-cd rentx-mcp-server
-npm install
-npm run build
+npx rentx-mcp-server
+```
+
+Or install globally:
+
+```bash
+npm install -g rentx-mcp-server
 ```
 
 ## Configuration
 
-### Environment variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `RENTX_API_URL` | `https://api.rentx.ro/api` | RentX backend API base URL |
-
 ### Claude Desktop
 
-Add the server to your `claude_desktop_config.json`:
+Add to your `claude_desktop_config.json`:
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "rentx": {
-      "command": "node",
-      "args": ["C:/ABSOLUTE/PATH/TO/rentx-mcp-server/dist/index.js"]
+      "command": "npx",
+      "args": ["rentx-mcp-server"]
     }
   }
 }
@@ -83,18 +82,28 @@ Add the server to your `claude_desktop_config.json`:
 
 ### Claude Code
 
-Add to your Claude Code settings (`.claude/settings.json` or project-level):
+```bash
+claude mcp add rentx npx rentx-mcp-server
+```
+
+Or add manually to `.claude/settings.json`:
 
 ```json
 {
   "mcpServers": {
     "rentx": {
-      "command": "node",
-      "args": ["C:/ABSOLUTE/PATH/TO/rentx-mcp-server/dist/index.js"]
+      "command": "npx",
+      "args": ["rentx-mcp-server"]
     }
   }
 }
 ```
+
+### Environment variables (optional)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RENTX_API_URL` | `https://api.rentx.ro/api` | RentX backend API base URL |
 
 ## Example queries
 

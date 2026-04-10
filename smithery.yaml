@@ -1,0 +1,17 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      apiUrl:
+        type: string
+        title: API URL
+        description: "RentX backend API base URL (optional, leave blank to use default)"
+        default: "https://api.rentx.ro/api"
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: "npx",
+      args: ["rentx-mcp-server"],
+      env: config.apiUrl ? { RENTX_API_URL: config.apiUrl } : {}
+    })
