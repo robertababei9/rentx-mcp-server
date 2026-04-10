@@ -1,0 +1,37 @@
+{
+  "name": "rentx-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for RentX.ro — Romania's rental marketplace. Search cars, equipment, electronics and more.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "rentx-mcp-server": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "rentx",
+    "rental",
+    "romania",
+    "cars",
+    "equipment"
+  ],
+  "author": "RentX",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.5.0"
+  }
+}
