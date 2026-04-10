@@ -306,10 +306,11 @@ function formatTopBooking(item: TopBooking, index: number): string {
 // MCP Server
 // ---------------------------------------------------------------------------
 
-const server = new McpServer({
-  name: "rentx",
-  version: "1.0.0",
-});
+function createServer() {
+  const server = new McpServer({
+    name: "rentx",
+    version: "1.0.0",
+  });
 
 // Tool 1: search_rentals
 server.registerTool(
@@ -661,11 +662,23 @@ server.registerTool(
   }
 );
 
+  return server;
+}
+
 // ---------------------------------------------------------------------------
-// Start server
+// Smithery hosted mode — export for capability scanning
+// ---------------------------------------------------------------------------
+
+export function createSandboxServer() {
+  return createServer();
+}
+
+// ---------------------------------------------------------------------------
+// Stdio entrypoint (npx / local use)
 // ---------------------------------------------------------------------------
 
 async function main() {
+  const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("RentX MCP server started (stdio transport)");
